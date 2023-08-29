@@ -33,7 +33,7 @@ struct PhotosView: View {
                     ForEach(1..<5) { _ in
                         ListPhotoRow(shouldShimmer: true)
                     }
-                }.padding(.vertical, 5)
+                }.padding(.vertical, 15)
             }))
         case .completedWithNoData:
             view = AnyView(Text("No photos"))
@@ -43,7 +43,7 @@ struct PhotosView: View {
                     ForEach(photos) { photo in
                         ListPhotoRow(photo: photo)
                     }
-                }.padding(.vertical, 5)
+                }.padding(.vertical, 15)
             }))
         case .failed(let errorMessage):
             view = AnyView(Text(errorMessage)

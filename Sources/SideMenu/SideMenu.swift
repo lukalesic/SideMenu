@@ -71,6 +71,7 @@ public struct SideMenu : View {
                     NavigationView {
                         if (self.leftMenu != nil && self.rightMenu != nil) {
                             self.sideMenuCenterView
+                                .frame(width: geometry.size.width, height: geometry.size.height)
                                 .opacity(1)
                                 .transition(.opacity)
                                 .navigationBarItems(
@@ -95,6 +96,7 @@ public struct SideMenu : View {
                                 )
                             } else if (self.leftMenu != nil) {
                                 self.sideMenuCenterView
+                                    .frame(width: geometry.size.width, height: geometry.size.height)
                                     .opacity(1)
                                     .transition(.opacity)
                                     .navigationBarItems(
@@ -110,6 +112,7 @@ public struct SideMenu : View {
                                     )
                             } else if (self.rightMenu != nil) {
                                 self.sideMenuCenterView
+                                    .frame(width: geometry.size.width, height: geometry.size.height)
                                     .opacity(1)
                                     .transition(.opacity)
                                     .navigationBarItems(
@@ -137,6 +140,7 @@ public struct SideMenu : View {
                         .frame(width: self.config.menuWidth)
                         .offset(x: self.leftMenuOffsetX, y: 0)
                         .transition(.move(edge: Edge.leading))
+                        .animation(self.menuAnimation)
                         .zIndex(2)
                 }
                 
@@ -152,10 +156,10 @@ public struct SideMenu : View {
                         .frame(width: self.config.menuWidth)
                         .offset(x: self.rightMenuOffsetX, y: 0)
                         .transition(.move(edge: Edge.trailing))
+                        .animation(self.menuAnimation)
                         .zIndex(4)
                 }
             }.gesture(self.panelDragGesture(geometry.size.width))
-                .animation(self.menuAnimation)
                 .onAppear {
                     self.leftMenuOffsetX = -self.menuXOffset(geometry.size.width)
                     self.rightMenuOffsetX = self.menuXOffset(geometry.size.width)
