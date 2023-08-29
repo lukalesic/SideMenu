@@ -66,132 +66,81 @@ public struct SideMenu : View {
     
     public var body: some View {
         return
-            GeometryReader { geometry in
-                ZStack {
-                    NavigationView {
-                        if (self.leftMenu != nil && self.rightMenu != nil) {
-                            self.sideMenuCenterView
-                                .frame(width: geometry.size.width, height: geometry.size.height)
-                                .opacity(1)
-                                .transition(.opacity)
-                                .navigationBarItems(
-                                    leading: Button(action: {
-                                        withAnimation {
-                                            self.sideMenuLeftPanel.toggle()
-                                        }
-                                    }, label: {
-                                        Image(systemName: "sidebar.left")
-                                            .accentColor(.blue)
-                                            .imageScale(.large)
-                                    }),
-                                    trailing: Button(action: {
-                                        withAnimation {
-                                            self.sideMenuRightPanel.toggle()
-                                        }
-                                    }, label: {
-                                        Image(systemName: "sidebar.right")
-                                            .accentColor(.red)
-                                            .imageScale(.large)
-                                    })
-                                )
-                            } else if (self.leftMenu != nil) {
-                                self.sideMenuCenterView
-                                    .frame(width: geometry.size.width, height: geometry.size.height)
-                                    .opacity(1)
-                                    .transition(.opacity)
-                                    .navigationBarItems(
-                                        leading: Button(action: {
-                                            withAnimation {
-                                                self.sideMenuLeftPanel.toggle()
-                                            }
-                                        }, label: {
-                                            Image(systemName: "sidebar.left")
-                                                .accentColor(.blue)
-                                                .imageScale(.large)
-                                        })
-                                    )
-                            } else if (self.rightMenu != nil) {
-                                self.sideMenuCenterView
-                                    .frame(width: geometry.size.width, height: geometry.size.height)
-                                    .opacity(1)
-                                    .transition(.opacity)
-                                    .navigationBarItems(
-                                        trailing: Button(action: {
-                                            withAnimation {
-                                                self.sideMenuRightPanel.toggle()
-                                            }
-                                        }, label: {
-                                            Image(systemName: "sidebar.right")
-                                                .accentColor(.red)
-                                                .imageScale(.large)
-                                        })
-                                )
-                            }
-                    }
-                if self.sideMenuLeftPanel && self.leftMenu != nil {
-                    MenuBackgroundView(sideMenuLeftPanel: self.$sideMenuLeftPanel,
-                                       sideMenuRightPanel: self.$sideMenuRightPanel,
-                                       bgColor: self.config.menuBGColor,
-                                       bgOpacity: self.leftMenuBGOpacity)
+        GeometryReader { geometry in
+            ZStack {
+                NavigationView {
+                    self.sideMenuCenterView
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .opacity(1)
+                }
+                    
+                    if self.sideMenuLeftPanel && self.leftMenu != nil {
+                        MenuBackgroundView(sideMenuLeftPanel: self.$sideMenuLeftPanel,
+                                           sideMenuRightPanel: self.$sideMenuRightPanel,
+                                           bgColor: self.config.menuBGColor,
+                                           bgOpacity: self.leftMenuBGOpacity)
                         .zIndex(1)
+                        
+                        self.leftMenu!
+                            .edgesIgnoringSafeArea(Edge.Set.all)
+                            .frame(width: self.config.menuWidth)
+                            .offset(x: self.leftMenuOffsetX, y: 0)
+                            .transition(.move(edge: Edge.leading))
+                        //                        .animation(self.menuAnimation)
+                            .zIndex(2)
+                    }
                     
-                    self.leftMenu!
-                        .edgesIgnoringSafeArea(Edge.Set.all)
-                        .frame(width: self.config.menuWidth)
-                        .offset(x: self.leftMenuOffsetX, y: 0)
-                        .transition(.move(edge: Edge.leading))
-                        .animation(self.menuAnimation)
-                        .zIndex(2)
-                }
-                
-                if self.sideMenuRightPanel && self.rightMenu != nil {
-                    MenuBackgroundView(sideMenuLeftPanel: self.$sideMenuLeftPanel,
-                                       sideMenuRightPanel: self.$sideMenuRightPanel,
-                                       bgColor: self.config.menuBGColor,
-                                       bgOpacity: self.rightMenuBGOpacity)
+                    if self.sideMenuRightPanel && self.rightMenu != nil {
+                        MenuBackgroundView(sideMenuLeftPanel: self.$sideMenuLeftPanel,
+                                           sideMenuRightPanel: self.$sideMenuRightPanel,
+                                           bgColor: self.config.menuBGColor,
+                                           bgOpacity: self.rightMenuBGOpacity)
                         .zIndex(3)
-                    
-                    self.rightMenu!
-                        .edgesIgnoringSafeArea(Edge.Set.all)
-                        .frame(width: self.config.menuWidth)
-                        .offset(x: self.rightMenuOffsetX, y: 0)
-                        .transition(.move(edge: Edge.trailing))
-                        .animation(self.menuAnimation)
-                        .zIndex(4)
-                }
-            }.gesture(self.panelDragGesture(geometry.size.width))
-                .onAppear {
-                    self.leftMenuOffsetX = -self.menuXOffset(geometry.size.width)
-                    self.rightMenuOffsetX = self.menuXOffset(geometry.size.width)
-                    self.leftMenuBGOpacity = self.config.menuBGOpacity
-                    self.rightMenuBGOpacity = self.config.menuBGOpacity
-                }
+                        
+                        self.rightMenu!
+                            .edgesIgnoringSafeArea(Edge.Set.all)
+                            .frame(width: self.config.menuWidth)
+                            .offset(x: self.rightMenuOffsetX, y: 0)
+                            .transition(.move(edge: Edge.trailing))
+                        //                        .animation(self.menuAnimation)
+                            .zIndex(4)
+                    }
+                }.gesture(self.panelDragGesture(geometry.size.width))
+                .animation(menuAnimation)
+                
+                    .onAppear {
+                        self.leftMenuOffsetX = -self.menuXOffset(geometry.size.width)
+                        self.rightMenuOffsetX = self.menuXOffset(geometry.size.width)
+                        self.leftMenuBGOpacity = self.config.menuBGOpacity
+                        self.rightMenuBGOpacity = self.config.menuBGOpacity
+                    }
+                
                 // Previously, the following was driven by a NotificationCenter event. But it wasn't handling rotations correctly all the time. It wasn't giving the right width on a rotation. I think it was gettig called before the GeometryReader change.
                 // This is a little crude, but I wanted to have an update that occurred on any change to the view-- so I could test if the landscape/portrait orientation had changed.
-                .modifier(CallOnViewUpdate({
-                    let newIsLandscape = geometry.size.width > geometry.size.height
-                    var update = false
-                    if isLandscape == nil {
-                        update = true
-                    }
-                    else if isLandscape != newIsLandscape {
-                        update = true
-                    }
-                    
-                    if update {
-                        DispatchQueue.main.async {
-                            self.isLandscape = newIsLandscape
-                            self.rightMenuOffsetX = self.menuXOffset(geometry.size.width)
-                            self.leftMenuOffsetX = -self.menuXOffset(geometry.size.width)
+                    .modifier(CallOnViewUpdate({
+                        let newIsLandscape = geometry.size.width > geometry.size.height
+                        var update = false
+                        if isLandscape == nil {
+                            update = true
                         }
-                    }
-                }))
-            .environment(\.sideMenuGestureModeKey, self.$sideMenuGestureMode)
-            .environment(\.sideMenuCenterViewKey, self.$sideMenuCenterView)
-            .environment(\.sideMenuLeftPanelKey, self.$sideMenuLeftPanel)
-            .environment(\.sideMenuRightPanelKey, self.$sideMenuRightPanel)
-            .environment(\.horizontalSizeClass, .compact)
-        }
+                        else if isLandscape != newIsLandscape {
+                            update = true
+                        }
+                        
+                        if update {
+                            DispatchQueue.main.async {
+                                self.isLandscape = newIsLandscape
+                                self.rightMenuOffsetX = self.menuXOffset(geometry.size.width)
+                                self.leftMenuOffsetX = -self.menuXOffset(geometry.size.width)
+                            }
+                        }
+                    }))
+                    .environment(\.sideMenuGestureModeKey, self.$sideMenuGestureMode)
+                    .environment(\.sideMenuCenterViewKey, self.$sideMenuCenterView)
+                    .environment(\.sideMenuLeftPanelKey, self.$sideMenuLeftPanel)
+                    .environment(\.sideMenuRightPanelKey, self.$sideMenuRightPanel)
+                    .environment(\.horizontalSizeClass, .compact)
+            }
     }
     
     // Just a means to get some code executed when a View is updated.
