@@ -86,7 +86,6 @@ public struct SideMenu : View {
                             .frame(width: self.config.menuWidth)
                             .offset(x: self.leftMenuOffsetX, y: 0)
                             .transition(.move(edge: Edge.leading))
-                        //                        .animation(self.menuAnimation)
                             .zIndex(2)
                     }
                     
@@ -102,11 +101,11 @@ public struct SideMenu : View {
                             .frame(width: self.config.menuWidth)
                             .offset(x: self.rightMenuOffsetX, y: 0)
                             .transition(.move(edge: Edge.trailing))
-                        //                        .animation(self.menuAnimation)
                             .zIndex(4)
                     }
                 }.gesture(self.panelDragGesture(geometry.size.width))
-                .animation(menuAnimation)
+                    .animation(menuAnimation)
+                
                 
                     .onAppear {
                         self.leftMenuOffsetX = -self.menuXOffset(geometry.size.width)
